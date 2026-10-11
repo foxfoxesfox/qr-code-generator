@@ -67,32 +67,31 @@
             name="url"
             type="url"
             placeholder="https://example.com"
-            required
+            autocomplete="off"
           />
           <p class="help">Use a full URL including https://</p>
         </div>
 
         <div class="field-grid two-up">
-            <div class="field">
-                <label for="sizeInput">QR size</label>
-                <select id="sizeInput" name="size">
-                <option value="128">128 × 128</option>
-                <option value="256" selected>256 × 256</option>
-                <option value="384">384 × 384</option>
-                <option value="512">512 × 512</option>
-                </select>
-            </div>
+          <div class="field">
+            <label for="sizeInput">QR size</label>
+            <select id="sizeInput" name="size">
+              <option value="128">128 × 128</option>
+              <option value="256" selected>256 × 256</option>
+              <option value="384">384 × 384</option>
+              <option value="512">512 × 512</option>
+            </select>
+          </div>
 
-            <div class="field">
-                <label for="marginInput">Print padding</label>
-                <select id="marginInput" name="margin">
-                <option value="12">Small</option>
-                <option value="28" selected>Medium</option>
-                <option value="52">Large</option>
-                </select>
-            </div>
+          <div class="field">
+            <label for="marginInput">Print padding</label>
+            <select id="marginInput" name="margin">
+              <option value="12">Small</option>
+              <option value="28" selected>Medium</option>
+              <option value="52">Large</option>
+            </select>
+          </div>
         </div>
-
 
         <div class="field-grid two-up">
           <div class="field">
@@ -115,6 +114,7 @@
               type="text"
               maxlength="50"
               placeholder="Optional text under the QR"
+              autocomplete="off"
             />
           </div>
 
@@ -126,6 +126,7 @@
               type="text"
               value="qrforge-code"
               maxlength="50"
+              autocomplete="off"
             />
           </div>
         </div>
@@ -142,7 +143,6 @@
         </div>
 
         <div class="actions">
-          <button class="btn btn-primary" type="submit">Generate QR</button>
           <button class="btn btn-secondary" type="button" id="downloadBtn">Download PNG</button>
           <button class="btn btn-secondary" type="button" id="printBtn">Print</button>
           <button class="btn btn-ghost" type="button" id="resetBtn">Reset</button>
@@ -153,9 +153,9 @@
     <section class="panel preview-panel">
       <div class="section-heading preview-meta no-print">
         <p class="eyebrow">Preview</p>
-        <h2>Ready to export</h2>
+        <h2>Live preview</h2>
         <p class="section-copy">
-          Download and print will match this card layout.
+          Changes update automatically and export will match this card layout.
         </p>
       </div>
 
@@ -169,7 +169,7 @@
 
       <div class="notes no-print">
         <p><strong>Tip:</strong> Dark QR on a light background usually scans best.</p>
-        <p>Padding and caption are now included in both print and download exports.</p>
+        <p>Padding, caption, and colors are included in both print and download exports.</p>
       </div>
     </section>
   </main>

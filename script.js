@@ -28,6 +28,8 @@ let currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
   ? "dark"
   : "light";
 
+let liveUpdateTimer = null;
+
 document.documentElement.setAttribute("data-theme", currentTheme);
 updateThemeButton();
 
@@ -45,7 +47,6 @@ function applyPreset(name) {
   if (!preset) return;
   darkColorInput.value = preset.dark;
   lightColorInput.value = preset.light;
-  syncPreviewStyles();
 }
 
 function safeFilename(value) {
@@ -75,10 +76,18 @@ function syncPreviewStyles() {
   const padding = Number(marginInput.value);
   const dark = darkColorInput.value;
   const light = lightColorInput.value;
+  const caption = labelInput.value.trim();
 
   qrStage.style.padding = `${padding}px`;
   qrStage.style.backgroundColor = light;
   captionPreview.style.color = dark;
+  captionPreview.textContent = caption || "No caption added";
+}
+
+function renderPlaceholderState() {
+  clearQR();
+  syncPreviewStyles();
+  printMount.innerHTML = "";
 }
 
 function waitForRenderedQR() {
@@ -101,6 +110,7 @@ function waitForRenderedQR() {
       }
 
       attempts += 1;
+
       if (attempts >= maxAttempts) {
         reject(new Error("QR render timeout"));
         return;
@@ -170,23 +180,26 @@ async function refreshPrintMount() {
   }
 }
 
-async function generateQR(event) {
-  if (event) event.preventDefault();
-
+async function renderLiveQR() {
   const link = urlInput.value.trim();
   const size = Number(sizeInput.value);
   const dark = darkColorInput.value;
   const light = lightColorInput.value;
-  const caption = labelInput.value.trim();
+
+  syncPreviewStyles();
+
+  if (!link) {
+    renderPlaceholderState();
+    return;
+  }
 
   if (!isValidUrl(link)) {
-    alert("Please enter a valid link starting with http:// or https://");
-    urlInput.focus();
+    clearQR();
+    printMount.innerHTML = "";
     return;
   }
 
   clearQR();
-  syncPreviewStyles();
 
   new QRCode(qrContainer, {
     text: link,
@@ -197,14 +210,18 @@ async function generateQR(event) {
     correctLevel: QRCode.CorrectLevel.H
   });
 
-  captionPreview.textContent = caption || "No caption added";
-  captionPreview.style.color = dark;
-
   try {
     await refreshPrintMount();
   } catch (error) {
     console.error(error);
   }
+}
+
+function scheduleLiveRender() {
+  clearTimeout(liveUpdateTimer);
+  liveUpdateTimer = setTimeout(() => {
+    renderLiveQR();
+  }, 180);
 }
 
 async function downloadQR() {
@@ -216,7 +233,7 @@ async function downloadQR() {
     link.click();
   } catch (error) {
     console.error(error);
-    alert("Generate a QR code first.");
+    alert("Enter a valid link first.");
   }
 }
 
@@ -226,7 +243,7 @@ async function printQR() {
     window.print();
   } catch (error) {
     console.error(error);
-    alert("Generate a QR code first.");
+    alert("Enter a valid link first.");
   }
 }
 
@@ -238,28 +255,28 @@ function resetForm() {
   marginInput.value = "28";
   presetInput.value = "custom";
   filenameInput.value = "qrforge-code";
-  clearQR();
+  urlInput.value = "";
+  labelInput.value = "";
   captionPreview.textContent = "No caption added";
   syncPreviewStyles();
-  printMount.innerHTML = "";
+  renderPlaceholderState();
 }
 
 presetInput.addEventListener("change", (event) => {
   if (event.target.value !== "custom") {
     applyPreset(event.target.value);
   }
+  renderLiveQR();
 });
 
-marginInput.addEventListener("change", syncPreviewStyles);
-darkColorInput.addEventListener("input", syncPreviewStyles);
-lightColorInput.addEventListener("input", syncPreviewStyles);
+urlInput.addEventListener("input", scheduleLiveRender);
+labelInput.addEventListener("input", scheduleLiveRender);
 
-labelInput.addEventListener("input", () => {
-  captionPreview.textContent = labelInput.value.trim() || "No caption added";
-  captionPreview.style.color = darkColorInput.value;
-});
+sizeInput.addEventListener("change", renderLiveQR);
+marginInput.addEventListener("change", renderLiveQR);
+darkColorInput.addEventListener("input", renderLiveQR);
+lightColorInput.addEventListener("input", renderLiveQR);
 
-qrForm.addEventListener("submit", generateQR);
 downloadBtn.addEventListener("click", downloadQR);
 printBtn.addEventListener("click", printQR);
 resetBtn.addEventListener("click", resetForm);
@@ -270,6 +287,6 @@ themeToggle.addEventListener("click", () => {
   updateThemeButton();
 });
 
-urlInput.value = "https://example.com";
 syncPreviewStyles();
-generateQR();
+urlInput.value = "https://example.com";
+renderLiveQR();
