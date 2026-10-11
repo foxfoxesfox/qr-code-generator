@@ -45,6 +45,7 @@ function applyPreset(name) {
   if (!preset) return;
   darkColorInput.value = preset.dark;
   lightColorInput.value = preset.light;
+  syncPreviewStyles();
 }
 
 function safeFilename(value) {
@@ -68,6 +69,16 @@ function isValidUrl(value) {
 
 function clearQR() {
   qrContainer.innerHTML = "";
+}
+
+function syncPreviewStyles() {
+  const padding = Number(marginInput.value);
+  const dark = darkColorInput.value;
+  const light = lightColorInput.value;
+
+  qrStage.style.padding = `${padding}px`;
+  qrStage.style.backgroundColor = light;
+  captionPreview.style.color = dark;
 }
 
 function waitForRenderedQR() {
@@ -132,11 +143,7 @@ async function buildExportCanvas() {
   const qrX = outerPadding + padding;
   const qrY = outerPadding + padding;
 
-  if (rendered.type === "canvas") {
-    ctx.drawImage(rendered.element, qrX, qrY, qrSize, qrSize);
-  } else {
-    ctx.drawImage(rendered.element, qrX, qrY, qrSize, qrSize);
-  }
+  ctx.drawImage(rendered.element, qrX, qrY, qrSize, qrSize);
 
   if (caption) {
     ctx.fillStyle = textColor;
@@ -168,7 +175,6 @@ async function generateQR(event) {
 
   const link = urlInput.value.trim();
   const size = Number(sizeInput.value);
-  const padding = Number(marginInput.value);
   const dark = darkColorInput.value;
   const light = lightColorInput.value;
   const caption = labelInput.value.trim();
@@ -180,8 +186,7 @@ async function generateQR(event) {
   }
 
   clearQR();
-  qrStage.style.padding = `${padding}px`;
-  qrStage.style.backgroundColor = light;
+  syncPreviewStyles();
 
   new QRCode(qrContainer, {
     text: link,
@@ -193,6 +198,7 @@ async function generateQR(event) {
   });
 
   captionPreview.textContent = caption || "No caption added";
+  captionPreview.style.color = dark;
 
   try {
     await refreshPrintMount();
@@ -200,17 +206,6 @@ async function generateQR(event) {
     console.error(error);
   }
 }
-
-function syncPreviewStyles() {
-  const padding = Number(marginInput.value);
-  const dark = darkColorInput.value;
-  const light = lightColorInput.value;
-
-  qrStage.style.padding = `${padding}px`;
-  qrStage.style.backgroundColor = light;
-  captionPreview.style.color = dark;
-}
-
 
 async function downloadQR() {
   try {
@@ -240,13 +235,12 @@ function resetForm() {
   darkColorInput.value = "#111827";
   lightColorInput.value = "#ffffff";
   sizeInput.value = "256";
-  marginInput.value = "16";
+  marginInput.value = "28";
   presetInput.value = "custom";
   filenameInput.value = "qrforge-code";
   clearQR();
   captionPreview.textContent = "No caption added";
-  qrStage.style.padding = "16px";
-  qrStage.style.backgroundColor = "#ffffff";
+  syncPreviewStyles();
   printMount.innerHTML = "";
 }
 
@@ -254,6 +248,15 @@ presetInput.addEventListener("change", (event) => {
   if (event.target.value !== "custom") {
     applyPreset(event.target.value);
   }
+});
+
+marginInput.addEventListener("change", syncPreviewStyles);
+darkColorInput.addEventListener("input", syncPreviewStyles);
+lightColorInput.addEventListener("input", syncPreviewStyles);
+
+labelInput.addEventListener("input", () => {
+  captionPreview.textContent = labelInput.value.trim() || "No caption added";
+  captionPreview.style.color = darkColorInput.value;
 });
 
 qrForm.addEventListener("submit", generateQR);
@@ -268,4 +271,5 @@ themeToggle.addEventListener("click", () => {
 });
 
 urlInput.value = "https://example.com";
+syncPreviewStyles();
 generateQR();
