@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRForge — Custom QR Code Generator</title>
+  <meta
+    name="description"
+    content="Generate custom printable QR codes for links with your own colors, sizes, spacing, and captions."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <rect x="6" y="6" width="18" height="18" rx="4" fill="currentColor"></rect>
+          <rect x="40" y="6" width="18" height="18" rx="4" fill="currentColor"></rect>
+          <rect x="6" y="40" width="18" height="18" rx="4" fill="currentColor"></rect>
+          <path d="M40 40h8v8h-8zM50 40h8v18H40V50h10z" fill="currentColor"></path>
+        </svg>
+      </div>
+
+      <div>
+        <p class="eyebrow">Hosted by you</p>
+        <h1>QRForge</h1>
+        <p class="brand-subtitle">Custom QR code generator for links, print, and download.</p>
+      </div>
+    </div>
+
+    <button
+      class="theme-toggle"
+      type="button"
+      data-theme-toggle
+      aria-label="Switch to dark mode"
+    >
+      <span class="theme-icon">◐</span>
+    </button>
+  </header>
+
+  <main id="main" class="layout">
+    <section class="panel controls-panel">
+      <div class="section-heading">
+        <p class="eyebrow">Generator</p>
+        <h2>Create a QR code</h2>
+        <p class="section-copy">
+          Enter a link, tune the design, and export a print-ready result.
+        </p>
+      </div>
+
+      <form id="qrForm" class="controls" novalidate>
+        <div class="field">
+          <label for="urlInput">Link</label>
+          <input
+            id="urlInput"
+            name="url"
+            type="url"
+            placeholder="https://example.com"
+            required
+          />
+          <p class="help">Use a full URL including https://</p>
+        </div>
+
+        <div class="field-grid two-up">
+          <div class="field">
+            <label for="sizeInput">QR size</label>
+            <select id="sizeInput" name="size">
+              <option value="128">128 × 128</option>
+              <option value="256" selected>256 × 256</option>
+              <option value="384">384 × 384</option>
+              <option value="512">512 × 512</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="marginInput">Print padding</label>
+            <select id="marginInput" name="margin">
+              <option value="0">None</option>
+              <option value="8">Small</option>
+              <option value="16" selected>Medium</option>
+              <option value="24">Large</option>
+              <option value="32">XL</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-grid two-up">
+          <div class="field">
+            <label for="darkColor">QR color</label>
+            <input id="darkColor" name="darkColor" type="color" value="#111827" />
+          </div>
+
+          <div class="field">
+            <label for="lightColor">Background color</label>
+            <input id="lightColor" name="lightColor" type="color" value="#ffffff" />
+          </div>
+        </div>
+
+        <div class="field-grid two-up">
+          <div class="field">
+            <label for="labelInput">Caption</label>
+            <input
+              id="labelInput"
+              name="label"
+              type="text"
+              maxlength="50"
+              placeholder="Optional text under the QR"
+            />
+          </div>
+
+          <div class="field">
+            <label for="filenameInput">Download file name</label>
+            <input
+              id="filenameInput"
+              name="filename"
+              type="text"
+              value="qrforge-code"
+              maxlength="50"
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="presetInput">Style preset</label>
+          <select id="presetInput" name="preset">
+            <option value="custom" selected>Custom</option>
+            <option value="classic">Classic black on white</option>
+            <option value="teal">Teal print</option>
+            <option value="poster">Poster contrast</option>
+            <option value="night">Night mode</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Generate QR</button>
+          <button class="btn btn-secondary" type="button" id="downloadBtn">Download PNG</button>
+          <button class="btn btn-secondary" type="button" id="printBtn">Print</button>
+          <button class="btn btn-ghost" type="button" id="resetBtn">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="section-heading">
+        <p class="eyebrow">Preview</p>
+        <h2>Ready to scan</h2>
+        <p class="section-copy">
+          Keep strong contrast for better scan reliability.
+        </p>
+      </div>
+
+      <div class="print-card" id="printCard">
+        <div class="print-header">
+          <p class="print-title">Scan this code</p>
+          <p class="print-subtitle" id="previewUrl">Your link will appear here</p>
+        </div>
+
+        <div class="qr-stage" id="qrStage">
+          <div id="qrcode" class="qrcode" aria-live="polite"></div>
+        </div>
+
+        <p class="qr-caption" id="captionPreview">No caption added</p>
+      </div>
+
+      <div class="notes">
+        <p><strong>Tip:</strong> Dark QR on a light background usually scans best.</p>
+        <p>Always test once on your phone before printing a large batch.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>QRForge is your hosted QR tool. Update this footer with your own domain or brand line.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
