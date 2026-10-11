@@ -201,6 +201,17 @@ async function generateQR(event) {
   }
 }
 
+function syncPreviewStyles() {
+  const padding = Number(marginInput.value);
+  const dark = darkColorInput.value;
+  const light = lightColorInput.value;
+
+  qrStage.style.padding = `${padding}px`;
+  qrStage.style.backgroundColor = light;
+  captionPreview.style.color = dark;
+}
+
+
 async function downloadQR() {
   try {
     const exportCanvas = await buildExportCanvas();
