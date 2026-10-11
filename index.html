@@ -91,6 +91,8 @@
               <option value="16" selected>Medium</option>
               <option value="24">Large</option>
               <option value="32">XL</option>
+              <option value="48">XXL</option>
+              <option value="64">Huge</option>
             </select>
           </div>
         </div>
@@ -152,20 +154,15 @@
     </section>
 
     <section class="panel preview-panel">
-      <div class="section-heading">
+      <div class="section-heading preview-meta no-print">
         <p class="eyebrow">Preview</p>
-        <h2>Ready to scan</h2>
+        <h2>Ready to export</h2>
         <p class="section-copy">
-          Keep strong contrast for better scan reliability.
+          Download and print will match this card layout.
         </p>
       </div>
 
       <div class="print-card" id="printCard">
-        <div class="print-header">
-          <p class="print-title">Scan this code</p>
-          <p class="print-subtitle" id="previewUrl">Your link will appear here</p>
-        </div>
-
         <div class="qr-stage" id="qrStage">
           <div id="qrcode" class="qrcode" aria-live="polite"></div>
         </div>
@@ -173,16 +170,18 @@
         <p class="qr-caption" id="captionPreview">No caption added</p>
       </div>
 
-      <div class="notes">
+      <div class="notes no-print">
         <p><strong>Tip:</strong> Dark QR on a light background usually scans best.</p>
-        <p>Always test once on your phone before printing a large batch.</p>
+        <p>Padding and caption are now included in both print and download exports.</p>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer no-print">
     <p>QRForge is your hosted QR tool. Update this footer with your own domain or brand line.</p>
   </footer>
+
+  <div id="printMount" class="print-mount" aria-hidden="true"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="script.js"></script>

@@ -12,9 +12,9 @@ const printBtn = document.getElementById("printBtn");
 const resetBtn = document.getElementById("resetBtn");
 const qrContainer = document.getElementById("qrcode");
 const qrStage = document.getElementById("qrStage");
-const previewUrl = document.getElementById("previewUrl");
 const captionPreview = document.getElementById("captionPreview");
 const themeToggle = document.querySelector("[data-theme-toggle]");
+const printMount = document.getElementById("printMount");
 
 const presets = {
   custom: null,
@@ -70,12 +70,105 @@ function clearQR() {
   qrContainer.innerHTML = "";
 }
 
-function generateQR(event) {
+function waitForRenderedQR() {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+    const maxAttempts = 40;
+
+    const check = () => {
+      const canvas = qrContainer.querySelector("canvas");
+      const image = qrContainer.querySelector("img");
+
+      if (canvas) {
+        resolve({ type: "canvas", element: canvas });
+        return;
+      }
+
+      if (image && image.complete && image.naturalWidth > 0) {
+        resolve({ type: "img", element: image });
+        return;
+      }
+
+      attempts += 1;
+      if (attempts >= maxAttempts) {
+        reject(new Error("QR render timeout"));
+        return;
+      }
+
+      setTimeout(check, 80);
+    };
+
+    check();
+  });
+}
+
+async function buildExportCanvas() {
+  const rendered = await waitForRenderedQR();
+
+  const qrSize = Number(sizeInput.value);
+  const padding = Number(marginInput.value);
+  const caption = labelInput.value.trim();
+  const backgroundColor = lightColorInput.value;
+  const textColor = darkColorInput.value;
+
+  const outerPadding = 32;
+  const captionGap = caption ? 20 : 0;
+  const captionFontSize = caption ? Math.max(22, Math.round(qrSize * 0.11)) : 0;
+  const captionHeight = caption ? Math.round(captionFontSize * 1.5) : 0;
+
+  const exportWidth = qrSize + padding * 2 + outerPadding * 2;
+  const exportHeight =
+    qrSize + padding * 2 + outerPadding * 2 + captionGap + captionHeight;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = exportWidth;
+  canvas.height = exportHeight;
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = backgroundColor;
+  ctx.fillRect(0, 0, exportWidth, exportHeight);
+
+  const qrX = outerPadding + padding;
+  const qrY = outerPadding + padding;
+
+  if (rendered.type === "canvas") {
+    ctx.drawImage(rendered.element, qrX, qrY, qrSize, qrSize);
+  } else {
+    ctx.drawImage(rendered.element, qrX, qrY, qrSize, qrSize);
+  }
+
+  if (caption) {
+    ctx.fillStyle = textColor;
+    ctx.font = `600 ${captionFontSize}px Inter, Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(caption, exportWidth / 2, qrY + qrSize + padding + captionGap);
+  }
+
+  return canvas;
+}
+
+async function refreshPrintMount() {
+  try {
+    const exportCanvas = await buildExportCanvas();
+    printMount.innerHTML = "";
+
+    const img = document.createElement("img");
+    img.src = exportCanvas.toDataURL("image/png");
+    img.alt = "Printable QR export";
+    printMount.appendChild(img);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function generateQR(event) {
   if (event) event.preventDefault();
 
   const link = urlInput.value.trim();
   const size = Number(sizeInput.value);
-  const margin = Number(marginInput.value);
+  const padding = Number(marginInput.value);
   const dark = darkColorInput.value;
   const light = lightColorInput.value;
   const caption = labelInput.value.trim();
@@ -87,7 +180,7 @@ function generateQR(event) {
   }
 
   clearQR();
-  qrStage.style.padding = `${margin}px`;
+  qrStage.style.padding = `${padding}px`;
   qrStage.style.backgroundColor = light;
 
   new QRCode(qrContainer, {
@@ -99,23 +192,36 @@ function generateQR(event) {
     correctLevel: QRCode.CorrectLevel.H
   });
 
-  previewUrl.textContent = link;
   captionPreview.textContent = caption || "No caption added";
+
+  try {
+    await refreshPrintMount();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-function downloadQR() {
-  const canvas = qrContainer.querySelector("canvas");
-  const image = qrContainer.querySelector("img");
-
-  if (!canvas && !image) {
+async function downloadQR() {
+  try {
+    const exportCanvas = await buildExportCanvas();
+    const link = document.createElement("a");
+    link.download = `${safeFilename(filenameInput.value)}.png`;
+    link.href = exportCanvas.toDataURL("image/png");
+    link.click();
+  } catch (error) {
+    console.error(error);
     alert("Generate a QR code first.");
-    return;
   }
+}
 
-  const link = document.createElement("a");
-  link.download = `${safeFilename(filenameInput.value)}.png`;
-  link.href = canvas ? canvas.toDataURL("image/png") : image.src;
-  link.click();
+async function printQR() {
+  try {
+    await refreshPrintMount();
+    window.print();
+  } catch (error) {
+    console.error(error);
+    alert("Generate a QR code first.");
+  }
 }
 
 function resetForm() {
@@ -127,10 +233,10 @@ function resetForm() {
   presetInput.value = "custom";
   filenameInput.value = "qrforge-code";
   clearQR();
-  previewUrl.textContent = "Your link will appear here";
   captionPreview.textContent = "No caption added";
   qrStage.style.padding = "16px";
-  qrStage.style.backgroundColor = "#f9fafb";
+  qrStage.style.backgroundColor = "#ffffff";
+  printMount.innerHTML = "";
 }
 
 presetInput.addEventListener("change", (event) => {
@@ -141,7 +247,7 @@ presetInput.addEventListener("change", (event) => {
 
 qrForm.addEventListener("submit", generateQR);
 downloadBtn.addEventListener("click", downloadQR);
-printBtn.addEventListener("click", () => window.print());
+printBtn.addEventListener("click", printQR);
 resetBtn.addEventListener("click", resetForm);
 
 themeToggle.addEventListener("click", () => {

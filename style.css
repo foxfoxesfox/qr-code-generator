@@ -243,6 +243,10 @@ input[type="color"] {
   gap: 18px;
 }
 
+.preview-meta {
+  margin-bottom: 0;
+}
+
 .print-card {
   background: white;
   color: #111827;
@@ -251,27 +255,11 @@ input[type="color"] {
   border: 1px dashed #d1d5db;
 }
 
-.print-header {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 18px;
-}
-
-.print-title {
-  font-weight: 800;
-  font-size: 1.2rem;
-}
-
-.print-subtitle {
-  color: #4b5563;
-  word-break: break-word;
-}
-
 .qr-stage {
   min-height: 320px;
   display: grid;
   place-items: center;
-  background: #f9fafb;
+  background: #ffffff;
   border-radius: 18px;
   padding: 16px;
 }
@@ -292,6 +280,8 @@ input[type="color"] {
   margin-top: 18px;
   text-align: center;
   font-weight: 600;
+  font-size: 1.1rem;
+  word-break: break-word;
 }
 
 .notes {
@@ -304,6 +294,14 @@ input[type="color"] {
 .site-footer {
   padding: 0 0 32px;
   color: var(--muted);
+}
+
+.no-print {
+  display: block;
+}
+
+.print-mount {
+  display: none;
 }
 
 :focus-visible {
@@ -328,37 +326,51 @@ input[type="color"] {
 @media print {
   body {
     background: white;
+    margin: 0;
+    padding: 0;
   }
 
   .site-header,
   .controls-panel,
+  .preview-meta,
+  .notes,
   .site-footer,
-  .notes {
+  .print-card {
     display: none !important;
   }
 
-  .layout {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
+  .layout,
   .preview-panel {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .panel {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .print-mount {
+    display: flex !important;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 12mm;
+  }
+
+  .print-mount img {
     display: block;
-    box-shadow: none;
-    border: 0;
-    padding: 0;
+    max-width: 100%;
+    max-height: calc(100vh - 24mm);
+    object-fit: contain;
   }
 
-  .print-card {
-    border: 0;
-    box-shadow: none;
+  @page {
     margin: 0;
-    padding: 0;
-  }
-
-  .qr-stage {
-    background: white;
   }
 }
