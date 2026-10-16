@@ -38,8 +38,6 @@ function updateThemeButton() {
     "aria-label",
     currentTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"
   );
-  themeToggle.querySelector(".theme-icon").textContent =
-    currentTheme === "dark" ? "☀" : "◐";
 }
 
 function applyPreset(name) {
