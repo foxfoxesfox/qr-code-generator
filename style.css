@@ -13,8 +13,6 @@
   --on-primary: #ffffff;
   --ring: rgba(15, 118, 110, 0.35);
   --shadow: 0 1px 2px rgba(16, 32, 29, 0.04), 0 12px 32px -12px rgba(16, 32, 29, 0.12);
-  --footer-bg: #0d2b28;
-  --footer-text: #c3d9d5;
   --radius: 20px;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   color-scheme: light;
@@ -34,8 +32,6 @@
   --on-primary: #04201c;
   --ring: rgba(45, 212, 191, 0.4);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.5);
-  --footer-bg: #050a09;
-  --footer-text: #93a6a1;
   color-scheme: dark;
 }
 
@@ -89,8 +85,7 @@ select {
 }
 
 .site-header,
-.layout,
-.footer-inner {
+.layout {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
 }
@@ -403,42 +398,25 @@ select:focus-visible {
   color: var(--text);
 }
 
-/* footer: full-width band, same pattern as the Ember & Oak site */
+/* footer: a slim credit line back to the main site */
 
 .site-footer {
-  background: var(--footer-bg);
-  color: var(--footer-text);
-}
-
-.footer-inner {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 48px;
-  padding: 56px 0 40px;
-}
-
-.site-footer h2 {
-  font-size: 1rem;
-  margin-bottom: 12px;
-  color: #ffffff;
-}
-
-.site-footer ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 6px;
+  border-top: 1px solid var(--border);
+  padding: 24px 16px 32px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 
 .site-footer a {
-  color: #ffffff;
+  color: var(--text);
+  font-weight: 600;
 }
 
 /* underline draws in from the left on hover */
 .pen-link {
   text-decoration: none;
-  background-image: linear-gradient(currentColor, currentColor);
+  background-image: linear-gradient(var(--primary), var(--primary));
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 0% 2px;
@@ -449,22 +427,6 @@ select:focus-visible {
 .pen-link:hover,
 .pen-link:focus-visible {
   background-size: 100% 2px;
-}
-
-.footer-small,
-.copyright {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-size: 0.875rem;
-}
-
-.footer-small {
-  padding-top: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.copyright {
-  margin-top: -36px;
 }
 
 .no-print {
@@ -503,15 +465,6 @@ select:focus-visible {
 
   .two-up {
     grid-template-columns: 1fr;
-  }
-
-  .footer-inner {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-
-  .copyright {
-    margin-top: -20px;
   }
 }
 
